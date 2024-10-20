@@ -51,7 +51,7 @@ document.getElementById('search-btn').addEventListener('click', debounce(async (
           questionDiv.innerHTML = `
             <div class="card-body">
               <h3 class="card-title"><a href="${item.link}" target="_blank">${item.title}</a></h3>
-              ${topAnswer ? `<h5>Top Answer:</h5><p>${topAnswer.slice(0, 200)}...</p>` : '<p class="text-muted">No top answer available</p>'}
+              ${topAnswer ? `<h5>Top Answer:</h5><p>${topAnswer.slice(0, 800)}...</p>` : '<p class="text-muted">No top answer available</p>'}
             </div>
           `;
         }
