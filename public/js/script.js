@@ -15,7 +15,7 @@ function debounce(func, delay) {
 document.getElementById('search-btn').addEventListener('click', debounce(async () => {
   const query = document.getElementById('search-query').value;
   const sortBy = document.getElementById('sort-by').value;
-
+  const emailSection = document.getElementById('email-section');
   if (!query) {
     alert('Please enter a search query.');
     return;
@@ -34,8 +34,9 @@ document.getElementById('search-btn').addEventListener('click', debounce(async (
     const data = await response.json();
     searchResults = data.items; // Store the results globally
     resultsDiv.innerHTML = '';
-
+    
     if (searchResults.length) {
+      emailSection.style.display = 'block';
       for (const item of searchResults) {
         const topAnswer = await fetchTopAnswer(item.question_id);
         const questionDiv = document.createElement('div');
@@ -43,7 +44,8 @@ document.getElementById('search-btn').addEventListener('click', debounce(async (
         questionDiv.innerHTML = `
           <div class="card-body">
             <h3 class="card-title"><a href="${item.link}" target="_blank">${item.title}</a></h3>
-            ${topAnswer ? `<h5>Top Answer:</h5><p>${topAnswer.slice(0, 200)}...</p>` : '<p class="text-muted">No top answer available</p>'}
+             <h4 class="card-title">${item.tags}</h4>
+            ${topAnswer ? `<h5>Top Answer:</h5><p>${topAnswer.slice(0, 800)}...</p>` : '<p class="text-muted">No top answer available</p>'}
           </div>
         `;
         resultsDiv.appendChild(questionDiv);

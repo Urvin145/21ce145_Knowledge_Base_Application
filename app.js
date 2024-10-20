@@ -3,6 +3,7 @@ const express = require('express');
 const axios = require('axios');
 const app = express();
 const port = 3000;
+
 // Add these lines to enable body parsing for JSON and form data
 app.use(express.json()); // For parsing application/json
 app.use(express.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded
@@ -12,8 +13,16 @@ app.use(express.static('public'));
 
 
 // Route to render home page
-app.get('/', (req, res) => {
+app.get('/index.html', (req, res) => {
   res.sendFile(__dirname + '/views/index.html');
+});
+
+app.get('/about.html', (req, res) => {
+  res.sendFile(__dirname + '/views/about.html');
+});
+
+app.get('/allquestion.html', (req, res) => {
+  res.sendFile(__dirname + '/views/allquestion.html');
 });
 
 app.get('/search', async (req, res) => {
@@ -52,6 +61,7 @@ app.get('/search', async (req, res) => {
       res.status(500).json({ error: 'Error fetching from StackOverflow API' });
     }
   });
+
   
   // Function to get detailed question information
   async function getQuestionDetails(questionId) {
