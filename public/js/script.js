@@ -16,6 +16,7 @@ document.getElementById('search-btn').addEventListener('click', debounce(async (
   const query = document.getElementById('search-query').value;
   const sortBy = document.getElementById('sort-by').value;
   const emailSection = document.getElementById('email-section');
+
   if (!query) {
     alert('Please enter a search query.');
     return;
@@ -26,28 +27,45 @@ document.getElementById('search-btn').addEventListener('click', debounce(async (
 
   try {
     const response = await fetch(`/search?q=${encodeURIComponent(query)}&sort=${sortBy}`);
-
+    
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }
 
     const data = await response.json();
-    searchResults = data.items; 
-    resultsDiv.innerHTML = '';
+    console.log("Data:", JSON.stringify(data));
+
+    searchResults = [...data.stackOverflow, ...data.reddit]; // Combine StackOverflow and Reddit data
+    resultsDiv.innerHTML = ''; // Clear loading text
 
     if (searchResults.length) {
       emailSection.style.display = 'block';
       for (const item of searchResults) {
-        const topAnswer = await fetchTopAnswer(item.question_id);
         const questionDiv = document.createElement('div');
         questionDiv.classList.add('question', 'card', 'mb-3');
-        questionDiv.innerHTML = `
-          <div class="card-body">
-            <h3 class="card-title"><a href="${item.link}" target="_blank">${item.title}</a></h3>
-             <h4 class="card-title">${item.tags}</h4>
-            ${topAnswer ? `<h5>Top Answer:</h5><p>${topAnswer.slice(0, 800)}...</p>` : '<p class="text-muted">No top answer available</p>'}
-          </div>
-        `;
+
+        // Handling StackOverflow posts
+        if (item.question_id) {
+          const topAnswer = await fetchTopAnswer(item.question_id);  // Fetch top answer
+
+          questionDiv.innerHTML = `
+            <div class="card-body">
+              <h3 class="card-title"><a href="${item.link}" target="_blank">${item.title}</a></h3>
+              ${topAnswer ? `<h5>Top Answer:</h5><p>${topAnswer.slice(0, 200)}...</p>` : '<p class="text-muted">No top answer available</p>'}
+            </div>
+          `;
+        }
+        
+        // Handling Reddit posts
+        if (item.subreddit) {
+          questionDiv.innerHTML = `
+            <div class="card-body">
+              <h3 class="card-title"><a href="${item.url}" target="_blank">${item.title}</a></h3>
+              <p>Posted by: ${item.author} in r/${item.subreddit}</p>
+            </div>
+          `;
+        }
+
         resultsDiv.appendChild(questionDiv);
       }
     } else {
@@ -58,6 +76,7 @@ document.getElementById('search-btn').addEventListener('click', debounce(async (
     resultsDiv.innerHTML = '<p>Error fetching results. Please try again later.</p>';
   }
 }, 300));
+
 
 document.getElementById('send-email-btn').addEventListener('click', async () => {
   const email = document.getElementById('email').value;
