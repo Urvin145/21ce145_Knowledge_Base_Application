@@ -55,7 +55,17 @@ h1 {
     color: #ffffff;
     cursor: pointer;
 }
+.no-results {
+    color: red;
+    font-weight: bold;
+  }
 
+  .question {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
 /* Input Fields */
 input[type="text"],
 input[type="email"],

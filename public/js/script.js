@@ -1,16 +1,16 @@
-let searchResults = []; // Store search results globally
+let searchResults = []; // Store search 
 
 function debounce(func, delay) {
-    let timeoutId;
-    return function (...args) {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-      timeoutId = setTimeout(() => {
-        func.apply(null, args);
-      }, delay);
-    };
-  }
+  let timeoutId;
+  return function (...args) {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+    timeoutId = setTimeout(() => {
+      func.apply(null, args);
+    }, delay);
+  };
+}
 
 document.getElementById('search-btn').addEventListener('click', debounce(async () => {
   const query = document.getElementById('search-query').value;
@@ -26,15 +26,15 @@ document.getElementById('search-btn').addEventListener('click', debounce(async (
 
   try {
     const response = await fetch(`/search?q=${encodeURIComponent(query)}&sort=${sortBy}`);
-    
+
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }
 
     const data = await response.json();
-    searchResults = data.items; // Store the results globally
+    searchResults = data.items; 
     resultsDiv.innerHTML = '';
-    
+
     if (searchResults.length) {
       emailSection.style.display = 'block';
       for (const item of searchResults) {
@@ -61,7 +61,7 @@ document.getElementById('search-btn').addEventListener('click', debounce(async (
 
 document.getElementById('send-email-btn').addEventListener('click', async () => {
   const email = document.getElementById('email').value;
-  
+
   if (!email || searchResults.length === 0) {
     alert('Please enter a valid email and make sure to search first.');
     return;
@@ -89,21 +89,20 @@ document.getElementById('send-email-btn').addEventListener('click', async () => 
 });
 
 async function fetchTopAnswer(questionId) {
-    try {
-      const response = await fetch(`https://api.stackexchange.com/2.3/questions/${questionId}/answers?order=desc&sort=votes&site=stackoverflow&filter=!9_bDE(fI5`);
-      
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-  
-      const data = await response.json();
-      // Return the top answer if available
-      if (data.items && data.items.length > 0) {
-        return data.items[0].body;  // Fetch the body of the top answer
-      }
-      return null;  // No top answer found
-    } catch (error) {
-      console.error(`Error fetching top answer for question ${questionId}:`, error);
-      return null;
+  try {
+    const response = await fetch(`https://api.stackexchange.com/2.3/questions/${questionId}/answers?order=desc&sort=votes&site=stackoverflow&filter=!9_bDE(fI5`);
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
     }
+
+    const data = await response.json();
+    if (data.items && data.items.length > 0) {
+      return data.items[0].body;  
+    }
+    return null; 
+  } catch (error) {
+    console.error(`Error fetching top answer for question ${questionId}:`, error);
+    return null;
   }
+}
