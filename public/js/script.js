@@ -56,21 +56,16 @@ document.getElementById('search-btn').addEventListener('click', async () => {
   // Function to fetch top answer for a question by question_id
   async function fetchTopAnswer(questionId) {
     try {
-      const response = await fetch(`https://api.stackexchange.com/2.3/questions/${questionId}/answers`, {
-        params: {
-          order: 'desc',
-          sort: 'votes',
-          site: 'stackoverflow',
-          filter: '!9_bDE(fI5'  // This filter includes the body of the answers
-        }
-      });
+      const response = await fetch(`https://api.stackexchange.com/2.3/questions/${questionId}/answers?order=desc&sort=votes&site=stackoverflow&filter=!9_bDE(fI5`);
       
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+  
+      const data = await response.json();
       // Return the top answer if available
-      if (response.ok) {
-        const data = await response.json();
-        if (data.items && data.items.length > 0) {
-          return data.items[0].body;  // Fetch the body of the top answer
-        }
+      if (data.items && data.items.length > 0) {
+        return data.items[0].body;  // Fetch the body of the top answer
       }
       return null;  // No top answer found
     } catch (error) {
