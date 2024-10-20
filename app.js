@@ -1,9 +1,15 @@
+require('dotenv').config(); 
 const express = require('express');
 const axios = require('axios');
 const app = express();
 const port = 3000;
+// Add these lines to enable body parsing for JSON and form data
+app.use(express.json()); // For parsing application/json
+app.use(express.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded
 
+const nodemailer = require('nodemailer');
 app.use(express.static('public'));
+
 
 // Route to render home page
 app.get('/', (req, res) => {
@@ -18,6 +24,8 @@ app.get('/search', async (req, res) => {
       return res.status(400).json({ error: 'Search query is required' });
     }
   
+    console.log(`Query: ${query}, Sort By: ${sortBy}`); // Log the query and sort parameter
+
     try {
       const response = await axios.get('https://api.stackexchange.com/2.3/search', {
         params: {
@@ -39,6 +47,7 @@ app.get('/search', async (req, res) => {
   
       res.json({ items: questionsWithBody });
     } catch (error) {
+      console.error('Error fetching from StackOverflow API:', error.message, error.response?.data);
       console.error('Error fetching from StackOverflow API:', error);
       res.status(500).json({ error: 'Error fetching from StackOverflow API' });
     }
@@ -73,7 +82,7 @@ app.get('/search', async (req, res) => {
       });
   
       if (response.data.items && response.data.items.length > 0) {
-        console.log(response.data.items);
+        // console.log(response.data.items);
         return response.data.items[0].body;  // Fetch the body of the top answer
       }
       return null;  // No top answer found
@@ -82,7 +91,78 @@ app.get('/search', async (req, res) => {
       return null;
     }
   }
+
+// Create a transporter with your email provider's SMTP credentials
+const transporter = nodemailer.createTransport({
+    service: 'gmail', // If you're using Gmail
+    auth: {
+      user: process.env.EMAIL_USER, // Your email address
+      pass: process.env.EMAIL_PASS, // Your email password or app-specific password
+    },
+  });
+
+// Send email route
+app.post('/send-email', async (req, res) => {
+    const { email, results } = req.body;
   
+    if (!email || !results) {
+      return res.status(400).json({ error: 'Email and results are required' });
+    }
+    
+    let data = JSON.stringify(results);
+    data = JSON.parse(data); 
+    // console.log('Data:', data);
+    // console.log('Is Array:', Array.isArray(data));
+
+    
+    function generateHTML(data) {
+        let html = `
+        <h2>StackOverflow Questions</h2>
+        <table border="1" cellpadding="5" cellspacing="0">
+        <thead>
+        <tr>
+        <th>Title</th>
+        <th>Tags</th>
+        <th>Owner</th>
+        <th>Link</th>
+        </tr>
+        </thead>
+        <tbody>`;
+        
+        data.forEach(item => {
+            html += `
+            <tr>
+            <td>${item.title}</td>
+            <td>${item.tags.join(", ")}</td>
+            <td><a href="${item.owner.link}">${item.owner.display_name}</a></td>
+                <td><a href="${item.link}">View Question</a></td>
+                </tr>`;
+            });
+            
+            html += `
+            </tbody>
+            </table>
+            `;
+            
+            return html;
+        }
+        
+        const mailOptions = {
+          from: process.env.EMAIL_USER, // Sender address
+          to: email, // List of recipients
+          subject: 'Search Results from StackOverflow',
+          html: generateHTML(data), // Email content
+        };
+        
+        try {
+            await transporter.sendMail(mailOptions);
+            res.json({ message: 'Email sent successfully!' });
+        } catch (error) {
+            console.error('Error sending email:', error);
+            res.status(500).json({ error: 'Failed to send email' });
+    }
+});
+
 app.listen(port, () => {
-  console.log(`App listening at http://localhost:${port}`);
+    console.log(`App listening at http://localhost:${port}`);
 });
