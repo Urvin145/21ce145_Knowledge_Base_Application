@@ -38,6 +38,10 @@ client.connect()
   });
 
 // Routes to render HTML pages
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/views/index.html');
+});
+
 app.get('/index.html', (req, res) => {
   res.sendFile(__dirname + '/views/index.html');
 });
