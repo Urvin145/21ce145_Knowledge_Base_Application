@@ -15,34 +15,31 @@
 <body>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid">
-          <!-- Brand aligned to the left -->
-          <a class="navbar-brand" href="#">Knowledge Base</a>
-          
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-      
-          <div class="collapse navbar-collapse justify-content-center" id="navbarSupportedContent">
-            <!-- Navbar items centered with increased spacing -->
-            <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-              <li class="nav-item mx-4">
-                <a class="nav-link active" aria-current="page" href="./index.html">Home</a>
-              </li>
-              <li class="nav-item mx-4">
-                <a class="nav-link" href="./about.html">About</a>
-              </li>
-              <li class="nav-item mx-4">
-                <a class="nav-link" href="./allquestion.html">All Questions</a>
-              </li>
-            </ul>
-          </div>
+            <a class="navbar-brand" href="#">Knowledge Base</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-center" id="navbarSupportedContent">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                    <li class="nav-item mx-4">
+                        <a class="nav-link active" aria-current="page" href="./index.html">Home</a>
+                    </li>
+                    <li class="nav-item mx-4">
+                        <a class="nav-link" href="./about.html">About</a>
+                    </li>
+                    <li class="nav-item mx-4">
+                        <a class="nav-link" href="./allquestion.html">All Questions</a>
+                    </li>
+                </ul>
+            </div>
         </div>
-      </nav>
+    </nav>
 
     <div class="container mt-4">
         <h1 class="text-center">Knowledge Base Statistics</h1>
         <div id="statsDiv" class="mt-4"></div>
+        <div id="messageDiv" class="mt-4"></div> <!-- Div for messages -->
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
@@ -51,25 +48,31 @@
     <script>
         async function fetchStackOverflowStats() {
             const statsDiv = document.getElementById('statsDiv');
+            const messageDiv = document.getElementById('messageDiv'); // Message div
 
             try {
                 const response = await fetch('https://api.stackexchange.com/2.3/info?site=stackoverflow');
 
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    throw new Error(`HTTP error! Status: ${response.status}`);
                 }
 
                 const data = await response.json();
-                const stats = data.items[0]; 
+
+                // Check if there are items in the response
+                if (!data.items || data.items.length === 0) {
+                    throw new Error('No data found in the response.');
+                }
+
+                const stats = data.items[0];
 
                 statsDiv.innerHTML = `
                     <div class="card">
                         <div class="card-body">
-                            
                             <ul class="list-group list-group-flush">
                                 <li class="list-group-item"><strong>Total Users:</strong> ${stats.total_users.toLocaleString()}</li>
                                 <li class="list-group-item"><strong>Total Badges:</strong> ${stats.total_badges.toLocaleString()}</li>
-                                <li class="list-group-item"><strong>Total Votes:</strong> ${stats.total_votes.toLocaleString()}</li>
+                                <li class="group-item"><strong>Total Votes:</strong> ${stats.total_votes.toLocaleString()}</li>
                                 <li class="list-group-item"><strong>Total Comments:</strong> ${stats.total_comments.toLocaleString()}</li>
                                 <li class="list-group-item"><strong>Answers Per Minute:</strong> ${stats.answers_per_minute}</li>
                                 <li class="list-group-item"><strong>Questions Per Minute:</strong> ${stats.questions_per_minute}</li>
@@ -82,9 +85,16 @@
                         </div>
                     </div>
                 `;
+
+                
             } catch (error) {
                 console.error('Error fetching data:', error);
-                statsDiv.innerHTML = '<p class="text-danger">Error fetching results. Please try again later.</p>';
+                statsDiv.innerHTML = ''; // Clear previous stats
+                messageDiv.innerHTML = `
+                    <div class="alert alert-danger" role="alert">
+                         Something went wrong! Please try again later.
+                    </div>
+                `;
             }
         }
 
