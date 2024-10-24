@@ -1,4 +1,4 @@
-let searchResults = []; // Store search results
+let searchResults = []; 
 
 function debounce(func, delay) {
   let timeoutId;
@@ -22,7 +22,7 @@ function showAlert(message, type) {
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
   `;
   document.querySelector('.container').prepend(alertDiv);
-  setTimeout(() => alertDiv.remove(), 5000); // Auto remove after 5 seconds
+  setTimeout(() => alertDiv.remove(), 5000); 
 }
 
 document.getElementById('search-btn').addEventListener('click', debounce(async () => {
@@ -48,8 +48,8 @@ document.getElementById('search-btn').addEventListener('click', debounce(async (
     const data = await response.json();
     console.log("Data:", JSON.stringify(data));
 
-    searchResults = [...data.stackOverflow, ...data.reddit]; // Combine StackOverflow and Reddit data
-    resultsDiv.innerHTML = ''; // Clear loading text
+    searchResults = [...data.stackOverflow, ...data.reddit];
+    resultsDiv.innerHTML = ''; 
 
     if (searchResults.length) {
       emailSection.style.display = 'block';
@@ -59,7 +59,7 @@ document.getElementById('search-btn').addEventListener('click', debounce(async (
 
         // Handling StackOverflow posts
         if (item.question_id) {
-          const topAnswer = await fetchTopAnswer(item.question_id);  // Fetch top answer
+          const topAnswer = await fetchTopAnswer(item.question_id);  
 
           questionDiv.innerHTML = `
             <div class="card-body">
@@ -82,7 +82,6 @@ document.getElementById('search-btn').addEventListener('click', debounce(async (
 
         resultsDiv.appendChild(questionDiv);
       }
-      //showAlert('Search results loaded successfully.', 'success');
     } else {
       resultsDiv.innerHTML = '<p>No results found.</p>';
       showAlert('No results found.', 'warning');
@@ -116,7 +115,6 @@ document.getElementById('send-email-btn').addEventListener('click', async () => 
     }
 
     const data = await response.json();
-    //showAlert(data.message, 'success');
   } catch (error) {
     console.error('Error sending email:', error);
     showAlert('There was an error sending the email. Please try again later.', 'danger');
@@ -142,7 +140,6 @@ async function fetchTopAnswer(questionId) {
   }
 }
 
-// "Back to Top" Button Functionality
 window.onscroll = function () {
   const backToTopBtn = document.getElementById('back-to-top');
   if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {

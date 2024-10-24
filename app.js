@@ -8,7 +8,6 @@ const port = 3000;
 
 const app = express();
 
-// Middleware for JSON and static file serving
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
@@ -21,12 +20,12 @@ const reddit = new snoowrap({
   refreshToken: process.env.REDDIT_REFRESH_TOKEN
 });
 
-// MongoDB connection
-const mongoUri = 'mongodb://127.0.0.1:27017'; // Replace with your MongoDB URI if needed
+
+const mongoUri = 'mongodb://127.0.0.1:27017'; 
 const client = new MongoClient(mongoUri);
+
 let cacheCollection;
 
-// Connect to MongoDB and initialize the cache collection
 client.connect()
   .then(() => {
     console.log('Connected to MongoDB successfully');
@@ -54,15 +53,15 @@ app.get('/allquestion.html', (req, res) => {
   res.sendFile(__dirname + '/views/allquestion.html');
 });
 
-// Exponential backoff function to handle API retries
+
 const exponentialBackoff = async (fn, retries = 5, delay = 1000) => {
   try {
     return await fn();
   } catch (error) {
     if (error.response && error.response.status === 429 && retries > 0) {
       console.warn(`Rate limit hit, retrying in ${delay / 1000} seconds...`);
-      await new Promise(resolve => setTimeout(resolve, delay));  // wait for `delay` milliseconds
-      return exponentialBackoff(fn, retries - 1, delay * 2);     // increase delay (exponential backoff)
+      await new Promise(resolve => setTimeout(resolve, delay));  
+      return exponentialBackoff(fn, retries - 1, delay * 2);     
     } else {
       throw error;
     }
@@ -79,12 +78,10 @@ app.get('/search', async (req, res) => {
   }
 
   try {
-    // Ensure cacheCollection is initialized before proceeding
     if (!cacheCollection) {
       return res.status(500).json({ error: 'Database connection not established' });
     }
 
-    // Check if the query is cached
     const cachedResults = await getCachedSearchResults(query);
     if (cachedResults) {
       console.log('Returning cached results');

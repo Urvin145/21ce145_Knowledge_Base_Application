@@ -39,7 +39,7 @@
     <div class="container mt-4">
         <h1 class="text-center">Knowledge Base Statistics</h1>
         <div id="statsDiv" class="mt-4"></div>
-        <div id="messageDiv" class="mt-4"></div> <!-- Div for messages -->
+        <div id="messageDiv" class="mt-4"></div> 
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
@@ -48,7 +48,7 @@
     <script>
         async function fetchStackOverflowStats() {
             const statsDiv = document.getElementById('statsDiv');
-            const messageDiv = document.getElementById('messageDiv'); // Message div
+            const messageDiv = document.getElementById('messageDiv'); 
 
             try {
                 const response = await fetch('https://api.stackexchange.com/2.3/info?site=stackoverflow');
@@ -58,8 +58,6 @@
                 }
 
                 const data = await response.json();
-
-                // Check if there are items in the response
                 if (!data.items || data.items.length === 0) {
                     throw new Error('No data found in the response.');
                 }
@@ -89,7 +87,7 @@
                 
             } catch (error) {
                 console.error('Error fetching data:', error);
-                statsDiv.innerHTML = ''; // Clear previous stats
+                statsDiv.innerHTML = ''; 
                 messageDiv.innerHTML = `
                     <div class="alert alert-danger" role="alert">
                          Something went wrong! Please try again later.
